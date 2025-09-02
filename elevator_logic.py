@@ -236,5 +236,5 @@ if __name__ == "__main__":
     #sistem durumunu göstereceğiz
     print(f"\n Sistem Durumu:")
     durum = sistem.sistem_durumu()
-    print(f"Asansör 1: Kat{durum['asansor_1']['kat']}, Durum : {durum['asansor_1']['durum']}")
-    print(f"Asansör 2: Kat{durum['asansor_2']['kat']}, Durum : {durum['asansor_2']['durum']}")
+    print(f"Asansör 1: Kat {durum['asansor_1']['kat']}, Durum : {durum['asansor_1']['durum']}")
+    print(f"Asansör 2: Kat {durum['asansor_2']['kat']}, Durum : {durum['asansor_2']['durum']}")
