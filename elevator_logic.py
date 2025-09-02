@@ -43,9 +43,9 @@ class AsansorSistemi:
     def __init__(self):
         self.asansor_1 = Asansor(id=1)
         self.asansor_2 = Asansor(id=2)
-        self.bekleyen_cagrilar = List[Cagri] = []
-        self.aktif_cagrilar = List[Cagri] = []
-        self.log_mesajlari = List[str] = []
+        self.bekleyen_cagrilar : List[Cagri] = []
+        self.aktif_cagrilar : List[Cagri] = []
+        self.log_mesajlari : List[str] = []
 
         print("Asansör sistemi başlatılıyor")
         print("2 asansör(130kg kapasite), -3ten 12ye toplam 16 kat.")
@@ -217,3 +217,24 @@ class AsansorSistemi:
             else:
                 asansor.hedef_katlar = yukari_hedefler
                 asansor.yon = Yon.YUKARI if yukari_hedefler else Yon.DURGUN
+
+
+#test için basit bir kullanım
+if __name__ == "__main__":
+    sistem = AsansorSistemi()
+
+    print("TEST BAŞLIYOR")
+
+    #deneme 5.kattan yukarı çağıracağız
+    sonuc1 = sistem.cagri_yap(5, "yukarı")
+    print(f"Test 1 : {sonuc1}")
+
+    #deneme 10.kattan aşağı çağıracağız
+    sonuc2 = sistem.cagri_yap(10, "aşağı")
+    print(f"Test 2 : {sonuc2}")
+
+    #sistem durumunu göstereceğiz
+    print(f"\n Sistem Durumu:")
+    durum = sistem.sistem_durumu()
+    print(f"Asansör 1: Kat{durum['asansor_1']['kat']}, Durum : {durum['asansor_1']['durum']}")
+    print(f"Asansör 2: Kat{durum['asansor_2']['kat']}, Durum : {durum['asansor_2']['durum']}")
