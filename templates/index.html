@@ -13,19 +13,88 @@
 
         <div class="container">
             <h1>Asansör Kontrol Sistemi</h1>
-        
-            <!--test alanı-->
-            <div class="test-section">
-                <h2>Sistem Testi</h2>
-                <button onclick="testFlask()">Flask bağlantısını test et</button>
-                <div id="test-result"></div>
-            </div>
 
-            <!--asansör alanı-->
-            <div class="elevator-section">
-                <h2>Asansör Sistemi(yakında)</h2>
-                <p>Sonraki adımda burada olacak</p>
+            <!-- Ana asansör alanı -->
+            <div class="elevator-main">
+                
+                <!-- Kat butonları -->
+                <div class="floors-panel">
+                    <h3>Kat Çağrıları</h3>
+                    <div class="floors-grid" id="floors-grid">
+                        <!-- JavaScript ile doldurulacak -->
+                    </div>
+                </div>
+                
+                <!-- Asansörler -->
+                <div class="elevators-panel">
+                    <h3>Asansörler</h3>
+                    <div class="elevators-container">
+                        
+                        <!-- Asansör 1 -->
+                        <div class="elevator-box" id="elevator-1">
+                            <div class="elevator-header">Asansör 1</div>
+                            <div class="elevator-display">
+                                <div class="floor-display" id="elevator-1-floor">1</div>
+                                <div class="direction-display" id="elevator-1-direction">-</div>
+                            </div>
+                            <div class="elevator-info">
+                                <div class="weight-info" id="elevator-1-weight">0 kg</div>
+                                <div class="status-info" id="elevator-1-status">Boş</div>
+                            </div>
+                            <div class="targets-info" id="elevator-1-targets">Hedef yok</div>
+                        </div>
+                        
+                        <!-- Asansör 2 -->
+                        <div class="elevator-box" id="elevator-2">
+                            <div class="elevator-header">Asansör 2</div>
+                            <div class="elevator-display">
+                                <div class="floor-display" id="elevator-2-floor">1</div>
+                                <div class="direction-display" id="elevator-2-direction">-</div>
+                            </div>
+                            <div class="elevator-info">
+                                <div class="weight-info" id="elevator-2-weight">0 kg</div>
+                                <div class="status-info" id="elevator-2-status">Boş</div>
+                            </div>
+                            <div class="targets-info" id="elevator-2-targets">Hedef yok</div>
+                        </div>
+                        
+                    </div>
+                </div>
+                
             </div>
+            
+            <!-- Kontrol paneli -->
+            <div class="control-panel">
+                <h3>Sistem Kontrolü</h3>
+                
+                <!-- Sistem durumu -->
+                <div class="system-status">
+                    <div class="status-item">
+                        <span>Sistem:</span>
+                        <span id="system-status">Çalışıyor</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Bekleyen Çağrı:</span>
+                        <span id="waiting-calls">0</span>
+                    </div>
+                    <div class="status-item">
+                        <button onclick="refreshSystem()">Yenile</button>
+                        <button onclick="testFlask()">Test</button>
+                    </div>
+                </div>
+                
+                <!-- Log alanı -->
+                <div class="log-section">
+                    <h4>Sistem Logları</h4>
+                    <div class="log-container" id="log-container">
+                        <div class="log-item">Sistem başlatıldı...</div>
+                    </div>
+                </div>
+                
+            </div>
+            
+            <!-- Test sonucu (gizli) -->
+            <div id="test-result" style="display: none;"></div>
         </div>
 
         <script src="{{ url_for('static', filename='script.js') }}"></script>
