@@ -108,69 +108,169 @@ function callElevator(kat, yon){
 }
 
 
-
-
-
-
-/*
-// Test fonksiyonu - Flask bağlantısını kontrol eder
-function testFlask(){
-    console.log("flask bağlantısı test ediliyor...");
-
-    //test butonunu devre dışı bırak
-    const button = document.querySelector('button');
-    button.disabled = true;
-    button.innerText = "Test ediliyor..." 
-
-    //flask API ye istek gönder
-    fetch('/test')
-        .then(response => {
-            if (response.ok){
-                return response.json();
-            }
-            throw new Error("Network hatası")
-        })
+// Sistem durumunu yeniler
+function refreshSystem() {
+    fetch('/api/durum')
+        .then(response => response.json())
         .then(data => {
-            console.log("Flaskdan gelen veri", data);
-            showTestResult(true, data);
+            systemData = data;
+            updateElevatorDisplays();
+            updateSystemStatus();
+            
+            // Log mesajlarını güncelle
+            if (data.log_mesajlari && data.log_mesajlari.length > 0) {
+                data.log_mesajlari.forEach(msg => addLog(msg, false));
+            }
         })
         .catch(error => {
-            console.error("hata", error);
-            showTestResult(false, error.message);
-        })
-        .finally(() => {
-            button.disabled = false;
-            button.innerText = "Flask bağlantısını test et";
-        })
+            console.error("Sistem durumu hatası:", error);
+            addLog(`Sistem durumu alınamadı: ${error.message}`);
+        });
 }
 
-//test sonucunu ekranda göster
-function showTestResult(success, data){
-    const resultDiv = document.getElementById('test-result');
+// Asansör görsellerini günceller
+function updateElevatorDisplays() {
+    if (!systemData) return;
+    
+    // Asansör 1
+    updateSingleElevator('1', systemData.asansor_1);
+    
+    // Asansör 2  
+    updateSingleElevator('2', systemData.asansor_2);
+}
 
-    if (success){
-        resultDiv.className = 'success';
-        resultDiv.innerHTML = `
-            <strong>Test Başarılı:</strong>
-            <br>
-            Mesaj: ${data.message}
-            <br>
-            Asansör Sayısı : ${data.asansor_sayisi}
-            <br>
-            Kat Sayısı : ${data.kat_sayisi}
-        `;
+
+// Tek asansör görselini günceller
+function updateSingleElevator(elevatorId, data) {
+    // Kat
+    document.getElementById(`elevator-${elevatorId}-floor`).textContent = data.kat;
+    
+    // Yön
+    let yonSimge = '-';
+    if (data.yon === 'yukarı') yonSimge = '↑';
+    else if (data.yon === 'aşağı') yonSimge = '↓';
+    document.getElementById(`elevator-${elevatorId}-direction`).textContent = yonSimge;
+    
+    // Ağırlık
+    document.getElementById(`elevator-${elevatorId}-weight`).textContent = `${data.yuk} kg`;
+    
+    // Durum
+    const statusElement = document.getElementById(`elevator-${elevatorId}-status`);
+    statusElement.textContent = data.durum.charAt(0).toUpperCase() + data.durum.slice(1);
+    
+    // Durum rengini güncelle
+    statusElement.className = 'status-info';
+    if (data.durum === 'boş') {
+        statusElement.style.background = '#c6f6d5';
+        statusElement.style.color = '#22543d';
+    } else if (data.durum === 'hareket_ediyor') {
+        statusElement.style.background = '#ffd6cc';
+        statusElement.style.color = '#9c4221';
+    } else if (data.durum === 'kapı_açık') {
+        statusElement.style.background = '#bee3f8';
+        statusElement.style.color = '#1a365d';
+    }
+    
+    // Hedefler
+    const targetsElement = document.getElementById(`elevator-${elevatorId}-targets`);
+    if (data.hedefler && data.hedefler.length > 0) {
+        targetsElement.textContent = `Hedefler: ${data.hedefler.join(', ')}`;
     } else {
-        resultDiv.className = 'error';
-        resultDiv.innerHTML = `
-            <strong>Hata</strong>
-            <br>
-            Hata Mesajı: ${data}
-        `;
+        targetsElement.textContent = 'Hedef yok';
     }
 }
 
-// Sayfa yüklendiğinde çalışacak kod
-document.addEventListener('DOMContentLoaded', function(){
-    console.log("Asansör sistemi yüklendi.");
-})
-*/
+// Sistem durumu panelini günceller
+function updateSystemStatus() {
+    if (!systemData) return;
+    
+    // Bekleyen çağrı sayısı
+    document.getElementById('waiting-calls').textContent = systemData.bekleyen_cagrilar || 0;
+    
+    // Sistem durumu
+    document.getElementById('system-status').textContent = 'Aktif';
+}
+
+// Log mesajı ekler
+function addLog(message, withTimestamp = true) {
+    const logContainer = document.getElementById('log-container');
+    const logItem = document.createElement('div');
+    logItem.className = 'log-item';
+    
+    if (withTimestamp) {
+        const now = new Date();
+        const time = now.toLocaleTimeString('tr-TR');
+        logItem.textContent = `[${time}] ${message}`;
+    } else {
+        logItem.textContent = message;
+    }
+    
+    logContainer.appendChild(logItem);
+    
+    // En fazla 20 log tut
+    while (logContainer.children.length > 20) {
+        logContainer.removeChild(logContainer.firstChild);
+    }
+    
+    // En alta scroll
+    logContainer.scrollTop = logContainer.scrollHeight;
+}
+
+// Otomatik yenileme başlatır
+function startAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+    }
+    
+    refreshInterval = setInterval(() => {
+        refreshSystem();
+    }, 3000); // 3 saniyede bir
+    
+    console.log("Otomatik yenileme başlatıldı (3s)");
+}
+
+// Otomatik yenilemeyi durdurur
+function stopAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+        console.log("Otomatik yenileme durduruldu");
+    }
+}
+
+
+// Test fonksiyonu (eski)
+function testFlask() {
+    console.log("Flask bağlantısı test ediliyor...");
+    
+    fetch('/test')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Flask test başarılı:", data);
+            addLog(`Flask test başarılı: ${data.mesaj}`);
+            
+            // Başarı mesajını geçici olarak göster
+            const testResult = document.getElementById('test-result');
+            testResult.style.display = 'block';
+            testResult.className = 'success';
+            testResult.innerHTML = `
+                <strong>Flask Bağlantısı OK!</strong><br>
+                ${data.mesaj}<br>
+                ${data.asansor_sayisi} asansör, ${data.kat_sayisi} kat
+            `;
+            
+            setTimeout(() => {
+                testResult.style.display = 'none';
+            }, 3000);
+        })
+        .catch(error => {
+            console.error("Flask test hatası:", error);
+            addLog(`Flask test hatası: ${error.message}`);
+        });
+}
+
+
+// Sayfa kapatılırken otomatik yenilemeyi durdur
+window.addEventListener('beforeunload', function() {
+    stopAutoRefresh();
+});
