@@ -262,37 +262,48 @@ h3 {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Test section */
-.test-section {
-    background: #f7fafc;
+/* Log alanı */
+.log-section {
+    background: white;
+    border-radius: 8px;
     padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 30px;
     border: 1px solid #e2e8f0;
 }
 
+.log-container {
+    max-height: 200px;
+    overflow-y: auto;
+    background: #1a202c;
+    color: #a0aec0;
+    padding: 15px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.log-item {
+    margin-bottom: 5px;
+    padding: 2px 0;
+}
+
+.log-item:last-child {
+    color: #68d391;
+}
+
+
+
+/* Butonlar */
 button {
     background: #4299e1;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 12px 20px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
-    transition: background 0.3s ease;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s ease;
 }
 
 button:hover {
@@ -300,29 +311,57 @@ button:hover {
     transform: translateY(-1px);
 }
 
+button:disabled {
+    background: #a0aec0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+
+
+/* Test sonucu (gizli ama stil hazır) */
 #test-result {
     margin-top: 15px;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 15px;
+    border-radius: 6px;
     font-weight: bold;
 }
 
 .success {
     background: #c6f6d5;
     color: #22543d;
-    border: 1px solid #9ae6b4;
+    border: 2px solid #9ae6b4;
 }
 
 .error {
     background: #fed7d7;
     color: #742a2a;
-    border: 1px solid #fc8181;
+    border: 2px solid #fc8181;
 }
 
-/* elevator section */
-.elevator-section {
-    background: #edf2f7;
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
+
+/* Responsive tasarım */
+@media (max-width: 768px) {
+    .elevator-main {
+        grid-template-columns: 1fr;
+    }
+    
+    .elevators-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .system-status {
+        grid-template-columns: 1fr;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
