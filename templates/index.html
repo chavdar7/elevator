@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <title>Asansör Kontrol Sistemi</title>
+    </head>
+
+
+    <body>
+
+        <div class="container">
+            <h1>Asansör Kontrol Sistemi</h1>
+        
+            <!--test alanı-->
+            <div class="test-section">
+                <h2>Sistem Testi</h2>
+                <button onclick="testFlask()">Flask bağlantısını test et</button>
+                <div id="test-result"></div>
+            </div>
+
+            <!--asansör alanı-->
+            <div class="elevator-section">
+                <h2>Asansör Sistemi(yakında)</h2>
+                <p>Sonraki adımda burada olacak</p>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    </body>
+
+</html>
