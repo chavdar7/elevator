@@ -4,15 +4,15 @@ from dataclasses import dataclass
 from enum import Enum
 
 class AsansorDurum(Enum):
-    BOS : "boş"
-    HAREKET_EDIYOR : "hareket_ediyor"
-    KAPI_ACIK : "kapı_açık"
-    ARIZALI : "arızalı"
+    BOS = "boş"
+    HAREKET_EDIYOR = "hareket_ediyor"
+    KAPI_ACIK = "kapı_açık"
+    ARIZALI = "arızalı"
 
 class Yon(Enum):
-    YUKARI : "yukarı"
-    ASAGI : "aşağı"
-    DURGUN : "durgun"
+    YUKARI = "yukarı"
+    ASAGI = "aşağı"
+    DURGUN = "durgun"
 
 #asansör çağrısı - nereden geldi ve hangi yöne
 @dataclass
@@ -110,3 +110,110 @@ class AsansorSistemi:
             }
         else: #asansöre çağrıyı ata
             self._cagri_ata(secilen_asansor, yeni_cagri)
+            return{
+                'durum' : 'atandı',
+                'asansor_id' : secilen_asansor.id,
+                'mesaj' : f'Asansör {secilen_asansor.id} geliyor.'
+            }
+
+    #en uygun asansörü seçecek    
+    def _asansor_sec(self, cagri: Cagri) -> Optional[Asansor]:
+        asansor_1_skor = self._asansor_skorla(self.asansor_1, cagri)
+        asansor_2_skor = self._asansor_skorla(self.asansor_2, cagri)
+
+        #eğer ikisi de uygun olmazsa
+        if asansor_1_skor == -1 and asansor_2_skor == -1:
+            return None
+        
+        #uygunluk varsa en yüksek skoru olanı seçeceğiz
+        if asansor_1_skor > asansor_2_skor:
+            return self.asansor_1
+        else:
+            return self.asansor_2
+        
+    #asansör skorlaması (-1 uygun değil gerisinde en yüksek skoru olan daha iyi)
+    def _asansor_skorla(self, asansor:Asansor, cagri:Cagri) -> int:
+        skor = 100 #başta herkesin skoru yüz
+
+        #asansör arızalı ise
+        if asansor.durum == AsansorDurum.ARIZALI:
+            return -1
+        
+        #mesafe faktörü(yakınsa daha iyi)
+        mesafe = abs(asansor.mevcut_kat - cagri.cagri_kati)
+        skor -= mesafe * 5
+
+        #durum faktörü
+        if asansor.durum == AsansorDurum.BOS:
+            skor += 30
+        elif asansor.durum == AsansorDurum.HAREKET_EDIYOR:
+            if self._yon_uyumlu(asansor, cagri):
+                skor += 15
+            else:
+                skor -= 25
+
+        skor -= len(asansor.hedef_katlar)*3
+
+        return skor
+
+    #çağrı asansörün yönüyle uyumlu mu?
+    def _yon_uyumlu(self, asansor:Asansor, cagri:Cagri) -> bool:
+
+        if asansor.yon == cagri.yon:
+            if cagri.yon == Yon.YUKARI and asansor.mevcut_kat <= cagri.cagri_kati:
+                return True
+            elif cagri.yon == Yon.ASAGI and asansor.mevcut_kat >= cagri.cagri_kati:
+                return True
+        return False
+    
+    #asansöre çağrıyı atayacağız
+    def _cagri_ata(self, asansor:Asansor, cagri:Cagri):
+
+        #eğer orda değilse çağrı katını hedeflere ekleyeceğiz
+        if not asansor.mevcut_kat == cagri.cagri_kati:
+            if cagri.cagri_kati not in asansor.hedef_katlar:
+                asansor.hedef_katlar.append(cagri.cagri_kati)
+
+        #hedefleri optimize edeceğiz
+        self._hedef_sirala(asansor)
+
+        #asansörü aktif edelim
+        if asansor.durum == AsansorDurum.BOS:
+            asansor.durum = AsansorDurum.HAREKET_EDIYOR
+
+        #çağrıyı aktif listeye ekleyeceğiz
+        cagri.durum = "atandı"
+        self.aktif_cagrilar.append(cagri)
+
+        self.log_ekle(f"Asansör {asansor.id} -> {cagri.cagri_kati}. kata gidiyor")
+
+    #hedef katları SCAN algo ile sıralayacağız
+    def _hedef_sirala(self, asansor:Asansor):
+
+        if not asansor.hedef_katlar:
+            asansor.yon = Yon.DURGUN
+            return
+        
+        #hedefleri yukarı ve aşağı olarak ayır
+        yukari_hedefler = [k for k in asansor.hedef_katlar if k > asansor.mevcut_kat]
+        asagi_hedefler = [k for k in asansor.hedef_katlar if k < asansor.mevcut_kat]
+
+        #bunları sırayalım
+        yukari_hedefler.sort() #küçükten büyüğe
+        asagi_hedefler.sort(reverse=True) #büyükten küçüğe
+
+        #mevcut yöne öncelik vereceğiz
+        if asansor.yon == Yon.YUKARI or asansor.yon == Yon.DURGUN:
+            if yukari_hedefler:
+                asansor.hedef_katlar = yukari_hedefler + asagi_hedefler
+                asansor.yon = Yon.YUKARI
+            else:
+                asansor.hedef_katlar = asagi_hedefler
+                asansor.yon = Yon.ASAGI if asagi_hedefler else Yon.DURGUN
+        else:
+            if asagi_hedefler:
+                asansor.hedef_katlar = asagi_hedefler + yukari_hedefler
+                asansor.yon = Yon.ASAGI
+            else:
+                asansor.hedef_katlar = yukari_hedefler
+                asansor.yon = Yon.YUKARI if yukari_hedefler else Yon.DURGUN
