@@ -218,6 +218,156 @@ class AsansorSistemi:
                 asansor.hedef_katlar = yukari_hedefler
                 asansor.yon = Yon.YUKARI if yukari_hedefler else Yon.DURGUN
 
+    
+
+    #döngüyü önlemek için sadece yeni log mesajları
+    def _yeni_log_mesajlari(self) -> List[str]:
+        yeni_mesajlar = self.log_mesajlari[self.son_log_sayisi:]
+        self.son_log_sayisi = len(self.log_mesajlari)
+        return yeni_mesajlar
+    
+    #asansör hareket simulasyon - her çağrıda çalışacak
+    def _asansor_simulasyonu(self):
+        simdiki_zaman = time.time()
+        
+        # 2 saniyede bir hareket et (gerçek zamanlı simülasyon)
+        if simdiki_zaman - self.son_hareket_zamani < 2.0:
+            return
+            
+        self.son_hareket_zamani = simdiki_zaman
+        
+        # Her asansörü hareket ettir
+        self._asansor_hareket_et(self.asansor_1)
+        self._asansor_hareket_et(self.asansor_2)
+        
+        # Bekleyen çağrıları kontrol et
+        self._bekleyen_cagri_isle()
+
+
+    #tek asansörü hareket ettirmek için
+    def _asansor_hareket_et(self, asansor: Asansor):
+
+        # Eğer hedef yoksa, boş duruma geç
+        if not asansor.hedef_katlar:
+            if asansor.durum != AsansorDurum.BOS:
+                asansor.durum = AsansorDurum.BOS
+                asansor.yon = Yon.DURGUN
+                self.log_ekle(f"🛑 Asansör {asansor.id} durdu (hedef yok)")
+            return
+        
+        hedef_kat = asansor.hedef_katlar[0]
+        
+        # Hedefe ulaştı mı?
+        if asansor.mevcut_kat == hedef_kat:
+            # Hedefi listeden çıkar
+            asansor.hedef_katlar.pop(0)
+            
+            # Kapıyı aç
+            asansor.durum = AsansorDurum.KAPI_ACIK
+            asansor.kapi_acilma_zamani = time.time()
+            
+            self.log_ekle(f"🚪 Asansör {asansor.id} {hedef_kat}. katta - Kapı açık")
+            
+            # 3 saniye sonra kapı kapanacak (bir sonraki çağrıda)
+            return
+        
+        # Kapı açıksa ve 3 saniye geçtiyse kapıyı kapat
+        if asansor.durum == AsansorDurum.KAPI_ACIK:
+            if time.time() - asansor.kapi_acilma_zamani > 3.0:
+                asansor.durum = AsansorDurum.HAREKET_EDIYOR
+                self.log_ekle(f"🚪 Asansör {asansor.id} kapı kapandı - Hareket başlıyor")
+            return
+        
+        # Hareket et
+        if hedef_kat > asansor.mevcut_kat:
+            asansor.mevcut_kat += 1
+            asansor.yon = Yon.YUKARI
+            asansor.durum = AsansorDurum.HAREKET_EDIYOR
+            self.log_ekle(f"⬆️ Asansör {asansor.id} → {asansor.mevcut_kat}. kat")
+            
+        elif hedef_kat < asansor.mevcut_kat:
+            asansor.mevcut_kat -= 1
+            asansor.yon = Yon.ASAGI
+            asansor.durum = AsansorDurum.HAREKET_EDIYOR
+            self.log_ekle(f"⬇️ Asansör {asansor.id} → {asansor.mevcut_kat}. kat")
+
+
+    #bekleyen çağrıları kontrol eder, uygun asansöre atar
+    def _bekleyen_cagri_isle(self):
+        if not self.bekleyen_cagrilar:
+            return
+            
+        atanan_cagrilar = []
+        
+        for cagri in self.bekleyen_cagrilar:
+            secilen_asansor = self._asansor_sec(cagri)
+            if secilen_asansor:
+                self._cagri_ata(secilen_asansor, cagri)
+                atanan_cagrilar.append(cagri)
+                self.log_ekle(f"✅ Bekleyen çağrı atandı: Asansör {secilen_asansor.id}")
+        
+        # Atanan çağrıları bekleyenlerden çıkar
+        for cagri in atanan_cagrilar:
+            self.bekleyen_cagrilar.remove(cagri)
+
+
+    #asansör içindeyken hedef kat ekler(kullanıcı tuşa basar), frontendden çağırılacak
+    def hedef_kat_ekle(self, asansor_id: int, hedef_kat: int, yolcu_kilosu: float = 0) -> Dict:
+
+        if not (1 <= hedef_kat <= 16):
+            return {'hata': 'Geçersiz kat numarası!'}
+            
+        if asansor_id not in [1, 2]:
+            return {'hata': 'Geçersiz asansör ID!'}
+        
+        asansor = self.asansor_1 if asansor_id == 1 else self.asansor_2
+        
+        # Kapasite kontrolü
+        if asansor.mevcut_yuk + yolcu_kilosu > 130:
+            self.log_ekle(f"⚠️ Asansör {asansor_id} kapasite aştı! ({asansor.mevcut_yuk + yolcu_kilosu}kg)")
+            return {'hata': f'Kapasite aşıldı! Maks: 130kg, Mevcut: {asansor.mevcut_yuk}kg'}
+        
+        # Ağırlık ekle
+        asansor.mevcut_yuk += yolcu_kilosu
+        
+        # Hedef katı ekle
+        if hedef_kat not in asansor.hedef_katlar and hedef_kat != asansor.mevcut_kat:
+            asansor.hedef_katlar.append(hedef_kat)
+            self._hedef_sirala(asansor)
+            
+            self.log_ekle(f"🎯 Asansör {asansor_id} yeni hedef: {hedef_kat}. kat (+{yolcu_kilosu}kg)")
+            
+            return {
+                'durum': 'eklendi',
+                'mesaj': f'Hedef {hedef_kat}. kat eklendi',
+                'toplam_agirlik': asansor.mevcut_yuk
+            }
+        else:
+            return {'mesaj': 'Hedef zaten mevcut veya aynı kattasınız'}
+
+
+    #yolcu indirme işlemi yapılacak
+    def yolcu_indi(self, asansor_id: int, inen_kilo: float) -> Dict:
+        if asansor_id not in [1, 2]:
+            return {'hata': 'Geçersiz asansör ID!'}
+            
+        asansor = self.asansor_1 if asansor_id == 1 else self.asansor_2
+        
+        if asansor.durum != AsansorDurum.KAPI_ACIK:
+            return {'hata': 'Asansör kapısı açık değil!'}
+            
+        # Ağırlık düş
+        asansor.mevcut_yuk = max(0, asansor.mevcut_yuk - inen_kilo)
+        
+        self.log_ekle(f"👋 Asansör {asansor_id} yolcu indi (-{inen_kilo}kg), Kalan: {asansor.mevcut_yuk}kg")
+        
+        return {
+            'durum': 'indi',
+            'kalan_agirlik': asansor.mevcut_yuk
+        }
+
+
+
 
 #test için basit bir kullanım
 if __name__ == "__main__":
