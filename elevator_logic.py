@@ -46,6 +46,8 @@ class AsansorSistemi:
         self.bekleyen_cagrilar : List[Cagri] = []
         self.aktif_cagrilar : List[Cagri] = []
         self.log_mesajlari : List[str] = []
+        self.son_hareket_zamani = 0
+        self.son_log_sayisi = 0
 
         print("Asansör sistemi başlatılıyor")
         print("2 asansör(130kg kapasite), -3ten 12ye toplam 16 kat.")
@@ -314,7 +316,7 @@ class AsansorSistemi:
     #asansör içindeyken hedef kat ekler(kullanıcı tuşa basar), frontendden çağırılacak
     def hedef_kat_ekle(self, asansor_id: int, hedef_kat: int, yolcu_kilosu: float = 0) -> Dict:
 
-        if not (1 <= hedef_kat <= 16):
+        if not (-3 <= hedef_kat <= 12):
             return {'hata': 'Geçersiz kat numarası!'}
             
         if asansor_id not in [1, 2]:

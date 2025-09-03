@@ -42,6 +42,7 @@
                                 <div class="status-info" id="elevator-1-status">Boş</div>
                             </div>
                             <div class="targets-info" id="elevator-1-targets">Hedef yok</div>
+                            <button onclick="openElevatorModal(1)">Asansör 1'e Bin</button>
                         </div>
                         
                         <!-- Asansör 2 -->
@@ -56,11 +57,23 @@
                                 <div class="status-info" id="elevator-2-status">Boş</div>
                             </div>
                             <div class="targets-info" id="elevator-2-targets">Hedef yok</div>
+                            <button onclick="openElevatorModal(2)">Asansör 2'ye Bin</button>
                         </div>
                         
                     </div>
                 </div>
                 
+            </div>
+
+            <!-- Asansör içi hedef kat ve kilo modalı -->
+            <div id="elevator-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+            <div style="background:white; padding:30px; border-radius:10px; min-width:300px;">
+                <h3>Hedef Kat ve Kilo Girin</h3>
+                <label>Hedef Kat: <input type="number" id="modal-target-floor" min="-3" max="12"></label><br><br>
+                <label>Kilonuz (kg): <input type="number" id="modal-weight" min="1" max="130"></label><br><br>
+                <button onclick="submitElevatorTarget()">Gönder</button>
+                <button onclick="closeElevatorModal()">İptal</button>
+            </div>
             </div>
             
             <!-- Kontrol paneli -->

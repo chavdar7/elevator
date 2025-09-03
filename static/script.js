@@ -238,6 +238,35 @@ function stopAutoRefresh() {
     }
 }
 
+let currentElevatorId = null;
+
+function openElevatorModal(elevatorId) {
+    currentElevatorId = elevatorId;
+    document.getElementById('elevator-modal').style.display = 'flex';
+}
+
+function closeElevatorModal() {
+    document.getElementById('elevator-modal').style.display = 'none';
+    currentElevatorId = null;
+}
+
+function submitElevatorTarget() {
+    const hedefKat = document.getElementById('modal-target-floor').value;
+    const kilo = document.getElementById('modal-weight').value;
+    if (!hedefKat || !kilo || !currentElevatorId) {
+        alert("Lütfen tüm alanları doldurun.");
+        return;
+    }
+    fetch(`/api/hedef/${currentElevatorId}/${hedefKat}?kilo=${kilo}`)
+        .then(response => response.json())
+        .then(data => {
+            addLog(data.mesaj || JSON.stringify(data));
+            refreshSystem();
+        })
+        .catch(err => alert("Hata: " + err))
+        .finally(() => closeElevatorModal());
+}
+
 
 // Test fonksiyonu (eski)
 function testFlask() {
