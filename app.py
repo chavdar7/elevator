@@ -34,6 +34,22 @@ def cagri_yap(kat, yon):
     sonuc = sistem.cagri_yap(kat, yon)
     return jsonify(sonuc)
 
+# Asansör içi hedef kat ekleme API'si
+@app.route('/api/hedef/<int:asansor_id>/<int:hedef_kat>')
+def hedef_ekle(asansor_id, hedef_kat):
+    # Kilo parametresi opsiyonel (query parameter)
+    kilo = float(request.args.get('kilo', 0))
+    sonuc = sistem.hedef_kat_ekle(asansor_id, hedef_kat, kilo)
+    return jsonify(sonuc)
+
+# Yolcu indirme API'si
+@app.route('/api/indi/<int:asansor_id>')
+def yolcu_indi(asansor_id):
+    inen_kilo = float(request.args.get('kilo', 70))  # Default 70kg
+    sonuc = sistem.yolcu_indi(asansor_id, inen_kilo)
+    return jsonify(sonuc)
+
+
 
 if __name__ == '__main__':
     print('Asansör sistemi başlatılıyor...')
