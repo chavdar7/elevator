@@ -47,7 +47,7 @@ function createFloorButtons(){
         }
 
         // Aşağı butonu (1. katta yok)
-        if (kat > 1){
+        if (kat > -3){
             const downBtn = document.createElement('button');
             downBtn.className = 'floor-btn down';
             downBtn.textContent = '↓';
