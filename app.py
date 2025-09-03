@@ -2,6 +2,9 @@ from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
 import json
 from elevator_logic import AsansorSistemi
+import threading
+import time
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'asansor_secret_key'
@@ -9,6 +12,11 @@ socketio = SocketIO(app)
 
 #sistemi burda oluşturcaz (instance)
 sistem = AsansorSistemi()
+
+def asansor_sim_thread():
+    while True:
+        sistem._asansor_simulasyonu()
+        time.sleep(2)
 
 #test
 @app.route('/')
@@ -54,4 +62,5 @@ def yolcu_indi(asansor_id):
 if __name__ == '__main__':
     print('Asansör sistemi başlatılıyor...')
     print("🌐 Tarayıcıda şu adresi açın: http://localhost:5000")
+    threading.Thread(target = asansor_sim_thread, daemon=True).start()
     socketio.run(app, debug=True, port=5000)
