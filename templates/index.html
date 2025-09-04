@@ -43,6 +43,7 @@
                             </div>
                             <div class="targets-info" id="elevator-1-targets">Hedef yok</div>
                             <button onclick="openElevatorModal(1)">Asansör 1'e Bin</button>
+                            <button onclick="openIndirModal(1)">Yolcu İndir</button>
                         </div>
                         
                         <!-- Asansör 2 -->
@@ -58,12 +59,15 @@
                             </div>
                             <div class="targets-info" id="elevator-2-targets">Hedef yok</div>
                             <button onclick="openElevatorModal(2)">Asansör 2'ye Bin</button>
+                            <button onclick="openIndirModal(2)">Yolcu İndir</button>
                         </div>
                         
                     </div>
                 </div>
                 
             </div>
+
+            
 
             <!-- Asansör içi hedef kat ve kilo modalı -->
             <div id="elevator-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
@@ -75,6 +79,17 @@
                 <button onclick="closeElevatorModal()">İptal</button>
             </div>
             </div>
+
+            <div id="indir-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:1000; align-items:center; justify-content:center;">
+            <div style="background:white; padding:30px; border-radius:10px; min-width:300px;">
+                <h3>İnen Yolcu Kilosu</h3>
+                <label>Kilo (kg): <input type="number" id="indir-weight" min="1" max="130"></label><br><br>
+                <button onclick="submitIndir()">Gönder</button>
+                <button onclick="closeIndirModal()">İptal</button>
+            </div>
+            </div>
+
+
             
             <!-- Kontrol paneli -->
             <div class="control-panel">

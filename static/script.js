@@ -268,6 +268,35 @@ function submitElevatorTarget() {
 }
 
 
+let currentIndirElevatorId = null;
+
+function openIndirModal(elevatorId) {
+    currentIndirElevatorId = elevatorId;
+    document.getElementById('indir-modal').style.display = 'flex';
+}
+
+function closeIndirModal() {
+    document.getElementById('indir-modal').style.display = 'none';
+    currentIndirElevatorId = null;
+}
+
+function submitIndir() {
+    const kilo = document.getElementById('indir-weight').value;
+    if (!kilo || !currentIndirElevatorId) {
+        alert("Lütfen kilo girin.");
+        return;
+    }
+    fetch(`/api/indi/${currentIndirElevatorId}?kilo=${kilo}`)
+        .then(response => response.json())
+        .then(data => {
+            addLog(data.mesaj || JSON.stringify(data));
+            refreshSystem();
+        })
+        .catch(err => alert("Hata: " + err))
+        .finally(() => closeIndirModal());
+}
+
+
 // Test fonksiyonu (eski)
 function testFlask() {
     console.log("Flask bağlantısı test ediliyor...");
