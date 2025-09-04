@@ -31,7 +31,7 @@ class Asansor:
     yon : Yon = Yon.DURGUN
     durum : AsansorDurum = AsansorDurum.BOS
     mevcut_yuk : float = 0.0
-    kapı_acılma_zamanı : float = 0.0
+    kapi_acilma_zamani : float = 0.0
 
     def __post_init__(self):
         if self.hedef_katlar is None:
