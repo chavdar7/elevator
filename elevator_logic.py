@@ -72,7 +72,7 @@ class AsansorSistemi:
                 'hedefler': self.asansor_2.hedef_katlar.copy()
             },
             'bekleyen_cagrilar' : len(self.bekleyen_cagrilar),
-            'log_mesajlari' : self.log_mesajlari[-5:]
+            'log_mesajlari' : self._yeni_log_mesajlari()
         }
     
     #log mesajı ekleyecek
