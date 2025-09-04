@@ -6,9 +6,8 @@
 3. [Kullanıcı Arayüzü Bileşenleri](#kullanıcı-arayüzü-bileşenleri)
 4. [API Endpoints](#api-endpoints)
 5. [JavaScript Fonksiyonları](#javascript-fonksiyonları)
-6. [CSS Stil Yapısı](#css-stil-yapısı)
-7. [Kurulum ve Çalıştırma](#kurulum-ve-çalıştırma)
-8. [Sistem Özellikleri](#sistem-özellikleri)
+6. [Kurulum ve Çalıştırma](#kurulum-ve-çalıştırma)
+7. [Sistem Özellikleri](#sistem-özellikleri)
 
 ---
 
@@ -26,7 +25,7 @@ Sistemimizde -3'ten 12ye kadar 16 katlı bir binamız ve 2 asansörümüz var. K
 
 ---
 
-## 📁 Dosya Yapısı
+## Dosya Yapısı
 
 ```
 elevator-system/
