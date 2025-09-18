@@ -53,7 +53,7 @@ def hedef_ekle(asansor_id, hedef_kat):
 # Yolcu indirme API'si
 @app.route('/api/indi/<int:asansor_id>')
 def yolcu_indi(asansor_id):
-    inen_kilo = float(request.args.get('kilo', 70))  # Default 70kg
+    inen_kilo = float(request.args.get('kilo', 70))
     sonuc = sistem.yolcu_indi(asansor_id, inen_kilo)
     return jsonify(sonuc)
 

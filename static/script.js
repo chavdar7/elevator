@@ -46,7 +46,7 @@ function createFloorButtons(){
             floorButtons.appendChild(upBtn);
         }
 
-        // Aşağı butonu (1. katta yok)
+        // Aşağı butonu (-3. katta yok)
         if (kat > -3){
             const downBtn = document.createElement('button');
             downBtn.className = 'floor-btn down';
@@ -297,7 +297,7 @@ function submitIndir() {
 }
 
 
-// Test fonksiyonu (eski)
+// Test fonksiyonu
 function testFlask() {
     console.log("Flask bağlantısı test ediliyor...");
     
